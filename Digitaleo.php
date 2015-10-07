@@ -282,7 +282,7 @@ class Digitaleo
      */
     private function _getToken($datas = array())
     {
-        $curlOauthPasswordGrantType = curl_init('https://oauth.messengeo.net');
+        $curlOauthPasswordGrantType = curl_init('https://oauth.messengeo.net/token');
         curl_setopt($curlOauthPasswordGrantType, CURLOPT_POST, true);
         curl_setopt($curlOauthPasswordGrantType, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curlOauthPasswordGrantType, CURLOPT_POSTFIELDS, $datas);
