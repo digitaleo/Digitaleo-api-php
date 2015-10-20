@@ -25,10 +25,11 @@
  * @author   Digitaleo 2015
  * @license  http://www.digitaleo.net/licence.txt Digitaleo Licence
  * @link     http://www.digitaleo.net
+ * @deprecated
  */
 class Digitaleo
 {
-    protected static $_formatAllowed = array('json', 'xml', 'csv', 'js', 'bin');
+    protected static $_formatAllowed = array('application/json', 'application/xml', 'text/csv', 'application/js', 'application/bin');
 
     /**
      * Base URL to access the API
@@ -135,9 +136,9 @@ class Digitaleo
     /**
      * Constructor
      *
-     * @param string $baseUrl Base URL to access the API
+     * @param string $baseUrl    Base URL to access the API
      * @param string $credential Authenticate API key
-     * @param string $format [Optional] Format of the response
+     * @param string $format     [Optional] Format of the response
      *
      * @throws \Exception
      */
@@ -248,7 +249,7 @@ class Digitaleo
      * Overload magic methods
      *
      * @param string $name
-     * @param array $arguments
+     * @param array  $arguments
      *
      * @return stdClass Objectlist
      */
@@ -275,9 +276,9 @@ class Digitaleo
 
     /**
      * Récupération d'un token
-     * 
-     * @param array  $datas Données POST à passer au serveur d'autorisation pour obtenir un token
-     * 
+     *
+     * @param array $datas Données POST à passer au serveur d'autorisation pour obtenir un token
+     *
      * @return array token d'autorisation
      */
     private function _getToken($datas = array())
@@ -289,7 +290,7 @@ class Digitaleo
 
         $auth = curl_exec($curlOauthPasswordGrantType);
         curl_close($curlOauthPasswordGrantType);
-        if ($auth != false){
+        if ($auth != false) {
             $res = json_decode($auth);
             $token = $res->access_token;
         } else {
@@ -301,10 +302,10 @@ class Digitaleo
 
     /**
      * Récupération d'un token pour le grant type "client_credentials"
-     * 
+     *
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
-     * 
+     *
      * @return string token d'autorisation
      */
     public function getTokenWithClientCredentialsGrant($clientId, $clientSecret)
@@ -319,10 +320,10 @@ class Digitaleo
 
     /**
      * Récupération d'un wrapper pour le grant type "client_credentials"
-     * 
+     *
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
-     * 
+     *
      * @return wrapper
      */
     public function setClientCredentialsGrant($clientId, $clientSecret)
@@ -349,8 +350,8 @@ class Digitaleo
      * Send request HTTP to the API
      *
      * @param string $method
-     * @param array $params
-     * @param array $fileParams
+     * @param array  $params
+     * @param array  $fileParams
      *
      * @return boolean
      */
@@ -407,9 +408,9 @@ class Digitaleo
 
         // Merge des headers passés par appel et ceux passé a l'instanciation du Wrapper
         $mergedHeaders = array_merge(
-                array( 'Authorization: Bearer ' . $this->_credential ),
-                (array)$additionnalsHeaders,
-                (array)$this->_additionnalHeaders);
+            array('Authorization: Bearer ' . $this->_credential),
+            (array)$additionnalsHeaders,
+            (array)$this->_additionnalHeaders);
 
         if (!empty($mergedHeaders)) {
             curl_setopt($handle, CURLOPT_HTTPHEADER, $mergedHeaders);
