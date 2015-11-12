@@ -1,36 +1,14 @@
 <?php
 
 /**
- * DigitaleoOauth.php
+ * Wrapper pour les APIs REST de Digitaleo
  *
- * LICENCE
- *
- * L'ensemble de ce code relève de la législation française et internationale
- * sur le droit d'auteur et la propriété intellectuelle. Tous les droits de
- * reproduction sont réservés, y compris pour les documents téléchargeables et
- * les représentations iconographiques et photographiques. La reproduction de
- * tout ou partie de ce code sur quelque support que ce soit est formellement
- * interdite sauf autorisation écrite émanant de la société DIGITALEO.
- *
- * PHP version 5.3
- *
- * @category Digitaleo
- * @package  DigitaleoOauth
- * @author   Digitaleo
+ * @author   Digitaleo 2015
  * @license  http://www.digitaleo.net/licence.txt Digitaleo Licence
  * @link     http://www.digitaleo.net
  */
+class Digitaleo
 
-/**
- * Wrapper pour les APIs de Digitaleo
- *
- * @category Digitaleo
- * @package  DigitaleoOauth
- * @author   Digitaleo
- * @license  http://www.digitaleo.net/licence.txt Digitaleo Licence
- * @link     http://www.digitaleo.net
- */
-class DigitaleoOauth
 {
     protected static $_outputFormatAllowed = array('application/json', 'application/xml', 'text/csv', 'application/js', 'application/bin');
 
@@ -143,9 +121,12 @@ class DigitaleoOauth
     /**
      * Constructor
      *
-     * @param string $baseUrl      Base URL to access the API
-     * @param string $credential   Authenticate API key
-     * @param string $outputFormat [Optional] Format of the response
+     * @param string $baseUrl           Base URL to access the API
+     * @param string $outputFormat      [Optional] Format of the response
+     * @param string $immediateOutput   [Optional] Output should be direct or not
+     * @param string $additionalHeaders [Optional] Headers to add by default to requests
+     *                                  key / value array
+     *                                  ex : ['Accept'=> 'application/json']
      *
      * @throws \Exception
      */
@@ -239,7 +220,9 @@ class DigitaleoOauth
     /**
      * Set Additionnal Headers
      *
-     * @param array $additionnalHeaders
+     * @param array $additionnalHeaders Headers to add by default to requests
+     *                                  key / value array
+     *                                  ex : ['Accept'=> 'application/json']
      */
     public function setAdditionnalHeaders($additionnalHeaders)
     {
@@ -251,12 +234,13 @@ class DigitaleoOauth
     /**
      * Récupération d'un token pour le grant type "client_credentials"
      *
+     * @param string $url          URL du serveur d'autorisation
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
      *
      * @return Credential credential
      */
-    public function setOauthClientCredentials($clientId, $clientSecret)
+    public function setOauthClientCredentials($url, $clientId, $clientSecret)
     {
         $credential = $this->getCredential();
 
@@ -273,6 +257,7 @@ class DigitaleoOauth
         $credential->grantType = static::GRANT_CLIENT;
         $credential->clientId = $clientId;
         $credential->clientSecret = $clientSecret;
+        $credential->url = $url;
         $this->setCredential($credential);
 
         return $this->callGetToken(true);
@@ -281,6 +266,7 @@ class DigitaleoOauth
     /**
      * Récupération d'un token pour le grant type "password"
      *
+     * @param string $url          URL du serveur d'autorisation
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
      * @param string $username     user name
@@ -288,7 +274,7 @@ class DigitaleoOauth
      *
      * @return Credential credential
      */
-    public function setOauthPasswordCredentials($clientId, $clientSecret, $username, $password)
+    public function setOauthPasswordCredentials($url, $clientId, $clientSecret, $username, $password)
     {
         $credential = $this->getCredential();
 
@@ -309,12 +295,14 @@ class DigitaleoOauth
         $credential->clientSecret = $clientSecret;
         $credential->username = $username;
         $credential->password = $password;
+        $credential->url = $url;
         $this->setCredential($credential);
 
         return $this->callGetToken(true);
     }
 
     /**
+     * @param string $url          URL du serveur d'autorisation
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
      * @param string $username     user name
@@ -323,7 +311,7 @@ class DigitaleoOauth
      * @return Credential
      * @throws Exception
      */
-    public function setOauthFinalUserDigitaleoCredential($clientId, $clientSecret, $username, $password)
+    public function setOauthFinalUserDigitaleoCredential($url, $clientId, $clientSecret, $username, $password)
     {
         $credential = $this->getCredential();
 
@@ -344,12 +332,14 @@ class DigitaleoOauth
         $credential->clientSecret = $clientSecret;
         $credential->username = $username;
         $credential->password = $password;
+        $credential->url = $url;
         $this->setCredential($credential);
 
         return $this->callGetToken(true);
     }
 
     /**
+     * @param string $url           URL du serveur d'autorisation
      * @param string $clientId      Client ID
      * @param string $clientSecret  Client Secret
      * @param string $facebookToken facebook token
@@ -357,7 +347,7 @@ class DigitaleoOauth
      * @return Credential
      * @throws Exception
      */
-    public function setOauthFinalUserFacebookCredential($clientId, $clientSecret, $facebookToken)
+    public function setOauthFinalUserFacebookCredential($url, $clientId, $clientSecret, $facebookToken)
     {
         $credential = $this->getCredential();
 
@@ -376,6 +366,7 @@ class DigitaleoOauth
         $credential->clientId = $clientId;
         $credential->clientSecret = $clientSecret;
         $credential->facebookToken = $facebookToken;
+        $credential->url = $url;
         $this->setCredential($credential);
 
         return $this->callGetToken(true);
@@ -384,13 +375,14 @@ class DigitaleoOauth
     /**
      * Récupération d'un token pour le grant type "refresh_token"
      *
+     * @param string $url          URL du serveur d'autorisation
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
      * @param string $refreshToken refresh token
      *
      * @return Credential credential
      */
-    public function setRefreshToken($clientId, $clientSecret, $refreshToken)
+    public function setRefreshToken($url, $clientId, $clientSecret, $refreshToken)
     {
         $credential = $this->getCredential();
 
@@ -409,6 +401,7 @@ class DigitaleoOauth
         $credential->clientId = $clientId;
         $credential->clientSecret = $clientSecret;
         $credential->refreshToken = $refreshToken;
+        $credential->url = $url;
         $this->setCredential($credential);
 
 
@@ -498,6 +491,8 @@ class DigitaleoOauth
      * @param string $resource            API resource to call
      * @param array  $params              parameters to add to request
      * @param array  $additionnalsHeaders headers to add to request
+     *                                    key / value array
+     *                                    ex : ['Accept'=> 'application/json']
      *
      * @return mixed formatted http response
      * @throws Exception
@@ -512,6 +507,8 @@ class DigitaleoOauth
      * @param array  $body                data to post
      * @param array  $params              parameters to add to request
      * @param array  $additionnalsHeaders headers to add to request
+     *                                    key / value array
+     *                                    ex : ['Accept'=> 'application/json']
      *
      * @return mixed formatted http response
      * @throws Exception
@@ -527,14 +524,17 @@ class DigitaleoOauth
      * @param array  $body                data to post
      * @param array  $params              parameters to add to request
      * @param array  $additionnalsHeaders headers to add to request
+     *                                    key / value array
+     *                                    ex : ['Accept'=> 'application/json']
      *
      * @return mixed formatted http response
      * @throws Exception
      */
     public function callPostFile($resource, $files, $body = array(), $params = array(), $additionnalsHeaders = array())
     {
-        $body = $this->_formatRequestForFiles($files, $body);
-        return $this->_call($resource, static::VERB_POST, $params, $body, $additionnalsHeaders);
+        $body = $this->_formatRequestForFiles($files, $body, $additionnalsHeaders);
+        $result = $this->_call($resource, static::VERB_POST, $params, $body, $additionnalsHeaders);
+        return $result;
     }
 
     /**
@@ -542,6 +542,8 @@ class DigitaleoOauth
      * @param array  $body                data to put
      * @param array  $params              parameters to add to request
      * @param array  $additionnalsHeaders headers to add to request
+     *                                    key / value array
+     *                                    ex : ['Accept'=> 'application/json']
      *
      * @return mixed formatted http response
      * @throws Exception
@@ -557,20 +559,25 @@ class DigitaleoOauth
      * @param array  $body                data to post
      * @param array  $params              parameters to add to request
      * @param array  $additionnalsHeaders headers to add to request
+     *                                    key / value array
+     *                                    ex : ['Accept'=> 'application/json']
      *
      * @return mixed formatted http response
      * @throws Exception
      */
     public function callPutFile($resource, $files, $body = array(), $params = array(), $additionnalsHeaders = array())
     {
-        $body = $this->_formatRequestForFiles($files, $body);
-        return $this->_call($resource, static::VERB_PUT, $params, $body, $additionnalsHeaders);
+        $body = $this->_formatRequestForFiles($files, $body, $additionnalsHeaders);
+        $result = $this->_call($resource, static::VERB_PUT, $params, $body, $additionnalsHeaders);
+        return $result;
     }
 
     /**
      * @param string $resource            API resource to call
      * @param array  $params              parameters to add to request
      * @param array  $additionnalsHeaders headers to add to request
+     *                                    key / value array
+     *                                    ex : ['Accept'=> 'application/json']
      *
      * @return mixed formatted http response
      * @throws Exception
@@ -765,15 +772,35 @@ class DigitaleoOauth
 
     private function _setCurlOptions($handle, $httpVerb, $body, $additionnalsHeaders = array())
     {
+        /**
+         * HTTP Header management
+         */
+        $headers = ['Authorization' => 'Bearer ' . $this->getCredential()->token];
+        if (isset($this->_contentType)) {
+            $headers['Content-Type'] = $this->_contentType;
+        }
+        if (isset($this->_format)) {
+            $headers['Accept'] = $this->_format;
+        }
+
+        $headers = array_merge($headers, (array)$this->_additionnalHeaders, $additionnalsHeaders);
+        $contentType = $headers['Content-Type'];
+
+        $headers = array_map(function ($key, $value) {
+            return "$key: $value";
+        }, array_keys($headers), array_values($headers));
+
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
+
         if ($httpVerb == static::VERB_POST) {
             curl_setopt($handle, CURLOPT_POST, true);
-            curl_setopt($handle, CURLOPT_POSTFIELDS, $this->_formatInputData($body));
+            curl_setopt($handle, CURLOPT_POSTFIELDS, $this->_formatInputData($contentType, $body));
         } elseif ($httpVerb == static::VERB_GET) {
             curl_setopt($handle, CURLOPT_POST, false);
         } elseif ($httpVerb == static::VERB_PUT) {
             curl_setopt($handle, CURLOPT_POST, false);
             curl_setopt($handle, CURLOPT_CUSTOMREQUEST, $httpVerb);
-            curl_setopt($handle, CURLOPT_POSTFIELDS, $this->_formatInputData($body));
+            curl_setopt($handle, CURLOPT_POSTFIELDS, $this->_formatInputData($contentType, $body));
         } elseif ($httpVerb == static::VERB_DELETE) {
             curl_setopt($handle, CURLOPT_POST, false);
             curl_setopt($handle, CURLOPT_CUSTOMREQUEST, $httpVerb);
@@ -782,19 +809,6 @@ class DigitaleoOauth
         }
 
         $this->_verb = $httpVerb;
-
-        /**
-         * HTTP Header management
-         */
-        $headers[] = 'Authorization: Bearer ' . $this->getCredential()->token;
-        if (isset($this->_contentType)) {
-            $headers[] = 'Content-Type: ' . $this->_contentType;
-        }
-        if (isset($this->_format)) {
-            $headers[] = 'Accept: ' . $this->_format;
-        }
-        $headers = array_merge($headers, $additionnalsHeaders, (array)$this->_additionnalHeaders);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
 
         /**
          * Http request timeout
@@ -841,19 +855,20 @@ class DigitaleoOauth
     /**
      * Formats input data
      *
-     * @param array $params input data
+     * @param string $contentType content type for the request
+     * @param array  $params      input data
      *
      * @return mixed formated input data according to content type
      */
-    private function _formatInputData($params)
+    private function _formatInputData($contentType, $params)
     {
         $inputData = $params;
-        if ($this->_contentType == static::INPUT_JSON) {
+        if ($contentType == static::INPUT_JSON) {
             if (!is_string($inputData)) {
                 $inputData = json_encode($params);
             }
         }
-        if ($this->_contentType == static::INPUT_URLENCODED) {
+        if ($contentType == static::INPUT_URLENCODED) {
             if (!is_string($inputData)) {
                 $inputData = http_build_query($params);
             }
@@ -868,14 +883,15 @@ class DigitaleoOauth
      *      <li>adds @ in front of each file path (needed by cUrl)</li>
      * </ul>
      *
-     * @param array $files list of file paths
-     * @param array $body  list of request body parameters
+     * @param array $files              list of file paths
+     * @param array $body               list of request body parameters
+     * @param array $additionnalHeaders list of headers for request
      *
      * @return array list of request body parameters completed by formated files paths
      */
-    private function _formatRequestForFiles($files, $body)
+    private function _formatRequestForFiles($files, $body, &$additionnalHeaders)
     {
-        $this->_contentType = static::INPUT_FORM_DATA;
+        $additionnalHeaders = array_merge($additionnalHeaders, ['Content-Type' => static::INPUT_FORM_DATA]);
         foreach ($files as $key => $value) {
             $body[$key] = '@' . $value;
         }
@@ -890,7 +906,7 @@ class Credential
      *
      * @var string
      */
-    public $url = 'https://oauth.messengeo.net/token';
+    public $url;
 
     /**
      * Grant Type
