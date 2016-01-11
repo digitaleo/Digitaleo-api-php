@@ -9,7 +9,12 @@ Sample code to use DigitaleoOauth.php :
 
 ```php
 $httpClient = new DigitaleoOauth();
-$httpClient->setBaseUrl('api_base_url')
-$httpClient->setOauthPasswordCredentials('https://oauth.messengeo.net/token', 'client_id', 'client_secret', 'login', 'password');
+$httpClient->setBaseUrl('<api_base_url>')
+$httpClient->setOauthPasswordCredentials(
+    'https://oauth.messengeo.net/token',
+    '<client_id>',
+    '<client_secret>',
+    '<login>',
+    '<password>');
 $httpClient->callGet('my_resource_name');
 ```
