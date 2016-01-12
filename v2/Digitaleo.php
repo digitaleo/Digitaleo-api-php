@@ -8,9 +8,18 @@
  * @link     http://www.digitaleo.net
  */
 class Digitaleo
-
 {
-    protected static $_outputFormatAllowed = array('application/json', 'application/xml', 'text/csv', 'application/js', 'application/bin');
+    /**
+     * Available Output format
+     * @var array
+     */
+    protected static $_outputFormatAllowed = [
+        'application/json',
+        'application/xml',
+        'text/csv',
+        'application/js',
+        'application/bin'
+    ];
 
     CONST INPUT_JSON = 'application/json';
     CONST INPUT_FORM_DATA = 'multipart/form-data';
@@ -109,7 +118,7 @@ class Digitaleo
      *
      * @var string
      */
-    private $_version = '2.0';
+    private $_version = '2.1';
 
     /**
      * Headers HTTP utilisé pour la requete
@@ -121,16 +130,17 @@ class Digitaleo
     /**
      * Constructor
      *
-     * @param string $baseUrl           Base URL to access the API
-     * @param string $outputFormat      [Optional] Format of the response
-     * @param string $immediateOutput   [Optional] Output should be direct or not
-     * @param string $additionalHeaders [Optional] Headers to add by default to requests
+     * @param string $baseUrl Base URL to access the API
+     * @param string $outputFormat [Optional] Format of the response
+     * @param bool|string $immediateOutput [Optional] Output should be direct or not
+     * @param array|string $additionalHeaders [Optional] Headers to add by default to requests
      *                                  key / value array
      *                                  ex : ['Accept'=> 'application/json']
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function __construct($baseUrl = null, $outputFormat = 'application/json', $immediateOutput = false, $additionalHeaders = array())
+    public function __construct($baseUrl = null, $outputFormat = 'application/json',
+                                $immediateOutput = false, $additionalHeaders = array())
     {
         // Check extension cURL
         if (!extension_loaded('curl')) {
@@ -195,9 +205,11 @@ class Digitaleo
     }
 
     /**
-     * @param $contentType
+     * @param string $contentType contenttype's value
      *
      * @throws Exception
+     *
+     * @return void
      */
     public function setContentType($contentType)
     {
@@ -211,6 +223,8 @@ class Digitaleo
      * Define immediate ouput status
      *
      * @param boolean $active Active direct ouput or not
+     *
+     * @return void
      */
     public function setImmediateOutput($active)
     {
@@ -223,6 +237,8 @@ class Digitaleo
      * @param array $additionnalHeaders Headers to add by default to requests
      *                                  key / value array
      *                                  ex : ['Accept'=> 'application/json']
+     *
+     * @return void
      */
     public function setAdditionnalHeaders($additionnalHeaders)
     {
@@ -232,63 +248,42 @@ class Digitaleo
     // <editor-fold desc="credentials" defaultstate="collapsed">
 
     /**
-     * Récupération d'un token pour le grant type "client_credentials"
+     * Définition de Credential pour le grant type "client_credentials"
      *
      * @param string $url          URL du serveur d'autorisation
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
+     * @param string $token        oauth token (Optional)
      *
      * @return Credential credential
      */
-    public function setOauthClientCredentials($url, $clientId, $clientSecret)
+    public function setOauthClientCredentials($url, $clientId, $clientSecret, $token = null)
     {
-        $credential = $this->getCredential();
-
-        if (($credential instanceof Credential)
-            && isset($credential->token)
-            && ($credential->clientId == $clientId)
-            && ($credential->clientSecret == $clientSecret)
-            && $credential->grantType == static::GRANT_CLIENT
-        ) {
-            return $credential;
-        }
-
         $credential = new Credential();
         $credential->grantType = static::GRANT_CLIENT;
         $credential->clientId = $clientId;
         $credential->clientSecret = $clientSecret;
         $credential->url = $url;
+        $credential->token = $token;
         $this->setCredential($credential);
 
-        return $this->callGetToken(true);
+        return $credential;
     }
 
     /**
-     * Récupération d'un token pour le grant type "password"
+     * Définition de Credential pour le grant type "password"
      *
      * @param string $url          URL du serveur d'autorisation
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
      * @param string $username     user name
      * @param string $password     user password
+     * @param string $token        oauth token (Optional)
      *
      * @return Credential credential
      */
-    public function setOauthPasswordCredentials($url, $clientId, $clientSecret, $username, $password)
+    public function setOauthPasswordCredentials($url, $clientId, $clientSecret, $username, $password, $token = null)
     {
-        $credential = $this->getCredential();
-
-        if (($credential instanceof Credential)
-            && isset($credential->token)
-            && $credential->grantType == static::GRANT_PASSWORD
-            && ($credential->clientId == $clientId)
-            && ($credential->clientSecret == $clientSecret)
-            && ($credential->username == $username)
-            && ($credential->password == $password)
-        ) {
-            return $credential;
-        }
-
         $credential = new Credential();
         $credential->grantType = static::GRANT_PASSWORD;
         $credential->clientId = $clientId;
@@ -296,36 +291,28 @@ class Digitaleo
         $credential->username = $username;
         $credential->password = $password;
         $credential->url = $url;
+        $credential->token = $token;
         $this->setCredential($credential);
 
-        return $this->callGetToken(true);
+        return $credential;
     }
 
     /**
+     * Définition de Credential pour le grant type "digitaleo finaluser"
+     *
      * @param string $url          URL du serveur d'autorisation
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
      * @param string $username     user name
      * @param string $password     user password
+     * @param string $token        oauth token (Optional)
      *
      * @return Credential
      * @throws Exception
      */
-    public function setOauthFinalUserDigitaleoCredential($url, $clientId, $clientSecret, $username, $password)
+    public function setOauthFinalUserDigitaleoCredential($url, $clientId, $clientSecret,
+                                                         $username, $password, $token = null)
     {
-        $credential = $this->getCredential();
-
-        if (($credential instanceof Credential)
-            && isset($credential->token)
-            && $credential->grantType == static::GRANT_FINAL_USER_DIGITALEO
-            && ($credential->clientId == $clientId)
-            && ($credential->clientSecret == $clientSecret)
-            && ($credential->username == $username)
-            && ($credential->password == $password)
-        ) {
-            return $credential;
-        }
-
         $credential = new Credential();
         $credential->grantType = static::GRANT_FINAL_USER_DIGITALEO;
         $credential->clientId = $clientId;
@@ -333,91 +320,76 @@ class Digitaleo
         $credential->username = $username;
         $credential->password = $password;
         $credential->url = $url;
+        $credential->token = $token;
         $this->setCredential($credential);
 
-        return $this->callGetToken(true);
+        return $credential;
     }
 
     /**
+     * Définition de Credential pour le grant type "facebook user"
+     *
      * @param string $url           URL du serveur d'autorisation
      * @param string $clientId      Client ID
      * @param string $clientSecret  Client Secret
      * @param string $facebookToken facebook token
+     * @param string $token         oauth token (Optional)
      *
      * @return Credential
      * @throws Exception
      */
-    public function setOauthFinalUserFacebookCredential($url, $clientId, $clientSecret, $facebookToken)
+    public function setOauthFinalUserFacebookCredential($url, $clientId, $clientSecret, $facebookToken, $token = null)
     {
-        $credential = $this->getCredential();
-
-        if (($credential instanceof Credential)
-            && isset($credential->token)
-            && $credential->grantType == static::GRANT_FINAL_USER_FACEBOOK
-            && ($credential->clientId == $clientId)
-            && ($credential->clientSecret == $clientSecret)
-            && ($credential->facebookToken == $facebookToken)
-        ) {
-            return $credential;
-        }
-
         $credential = new Credential();
         $credential->grantType = static::GRANT_FINAL_USER_FACEBOOK;
         $credential->clientId = $clientId;
         $credential->clientSecret = $clientSecret;
         $credential->facebookToken = $facebookToken;
         $credential->url = $url;
+        $credential->token = $token;
         $this->setCredential($credential);
 
-        return $this->callGetToken(true);
+        return $credential;
     }
 
     /**
-     * Récupération d'un token pour le grant type "refresh_token"
+     * Définition de Credential pour le grant type "refresh_token"
      *
      * @param string $url          URL du serveur d'autorisation
      * @param string $clientId     Client ID
      * @param string $clientSecret Client Secret
      * @param string $refreshToken refresh token
+     * @param string $token oauth token (Optional)
      *
      * @return Credential credential
      */
-    public function setRefreshToken($url, $clientId, $clientSecret, $refreshToken)
+    public function setRefreshToken($url, $clientId, $clientSecret, $refreshToken, $token = null)
     {
-        $credential = $this->getCredential();
-
-        if (($credential instanceof Credential)
-            && isset($credential->token)
-            && $credential->grantType == static::GRANT_REFRESH
-            && ($credential->clientId == $clientId)
-            && ($credential->clientSecret == $clientSecret)
-            && ($credential->refreshToken == $refreshToken)
-        ) {
-            return $credential;
-        }
-
         $credential = new Credential();
         $credential->grantType = static::GRANT_REFRESH;
         $credential->clientId = $clientId;
         $credential->clientSecret = $clientSecret;
         $credential->refreshToken = $refreshToken;
         $credential->url = $url;
+        $credential->token = $token;
         $this->setCredential($credential);
 
-
-        return $this->callGetToken(true);
+        return $credential;
     }
 
     /**
-     * Ajout du token oauth
+     * Définition de Credential avec un token oauth
      *
-     * @param string $token token oauth
+     * @param string $token Token (Optional)
+     * @return Credential
      */
     public function setOauthToken($token)
     {
         $credential = new Credential();
         $credential->token = $token;
         $this->setCredential($credential);
+
+        return $credential;
     }
 
     /**
@@ -483,7 +455,6 @@ class Digitaleo
                 $credential->refreshToken = $oAuthResult->refresh_token;
             }
         }
-
         return $credential;
     }
 
@@ -686,17 +657,17 @@ class Digitaleo
     /**
      * Call the API
      *
-     * @param string  $resource Resource REST
-     * @param string  $httpVerb HTTP Verb
-     * @param array   $params   Params
-     * @param boolean $force    Force get token
-     *
-     * @return boolean
-     *
-     * @throws \InvalidArgumentException
-     * @throws \Exception
+     * @param string $resource Resource REST
+     * @param string $httpVerb HTTP Verb
+     * @param array $params Params
+     * @param null $body
+     * @param array $additionnalsHeaders
+     * @param boolean $force Force get token
+     * @return bool
+     * @throws Exception
      */
-    private function _call($resource, $httpVerb, $params = array(), $body = null, $additionnalsHeaders = array(), $force = false)
+    protected function _call($resource, $httpVerb, $params = array(), $body = null,
+                             $additionnalsHeaders = array(), $force = false)
     {
         // Check base URL to access the API is set
         if (empty($this->_baseUrl)) {
@@ -705,34 +676,27 @@ class Digitaleo
 
         $this->callGetToken($force);
 
-        try {
+        $handle = $this->_initCurl();
+        $this->_setCurlOptions($handle, $httpVerb, $body, $additionnalsHeaders);
 
-            $handle = $this->_initCurl();
-            $this->_setCurlOptions($handle, $httpVerb, $body, $additionnalsHeaders);
+        $uri = $this->_createUri($resource, $params);
+        curl_setopt($handle, CURLOPT_URL, $uri);
 
-            $uri = $this->_createUri($resource, $params);
-            curl_setopt($handle, CURLOPT_URL, $uri);
+        $response = $this->_callExec($handle);
 
-            $response = $this->_callExec($handle);
+        # Close curl process
+        curl_close($handle);
 
-            # Close curl process
-            curl_close($handle);
-
-            return $response;
-
-        } catch (\Exception $ex) {
-
-            if ($ex->getCode() == 401 && $force == false) {
-                $this->_call($resource, $httpVerb, $params, $body, $additionnalsHeaders, true);
-            }
-
-            # Close curl process
-            curl_close($handle);
-
-            throw $ex;
+        if ($this->getResponseCode() == 401 && !$force) {
+            $response = $this->_call($resource, $httpVerb, $params, $body, $additionnalsHeaders, true);
         }
+        return $response;
     }
 
+    /**
+     * @param string $buffer response
+     * @return string
+     */
     private function _createResponse($buffer)
     {
         # Response code
@@ -760,7 +724,8 @@ class Digitaleo
         );
         $componentsUrl = parse_url($this->_baseUrl);
         // Check secure URL
-        if ($componentsUrl['scheme'] == 'https' || (array_key_exists('port', $componentsUrl) && $componentsUrl['port'] != 80)) {
+        if ($componentsUrl['scheme'] == 'https'
+            || (array_key_exists('port', $componentsUrl) && $componentsUrl['port'] != 80)) {
             $configCurl[CURLOPT_SSL_VERIFYPEER] = false;
             $configCurl[CURLOPT_SSL_VERIFYHOST] = 2;
             $configCurl[CURLOPT_SSLVERSION] = 1;
@@ -770,6 +735,17 @@ class Digitaleo
         return $handle;
     }
 
+    /**
+     * Set Curl options
+     *
+     * @param resource $handle
+     * @param string $httpVerb
+     * @param array $body
+     * @param array $additionnalsHeaders
+     * @throws Exception
+     *
+     * @return void
+     */
     private function _setCurlOptions($handle, $httpVerb, $body, $additionnalsHeaders = array())
     {
         /**
@@ -899,6 +875,9 @@ class Digitaleo
     }
 }
 
+/**
+ * Class Credential
+ */
 class Credential
 {
     /**
