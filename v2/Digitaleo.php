@@ -26,10 +26,7 @@ class Digitaleo
     CONST INPUT_URLENCODED = 'application/x-www-form-urlencoded';
 
     CONST GRANT_REFRESH = 'refresh_token';
-    CONST GRANT_PASSWORD = 'password';
     CONST GRANT_CLIENT = 'client_credentials';
-    CONST GRANT_FINAL_USER_DIGITALEO = 'digitaleo_finaluser';
-    CONST GRANT_FINAL_USER_FACEBOOK = 'facebook_finaluser';
 
     CONST VERB_GET = 'GET';
     CONST VERB_POST = 'POST';
@@ -271,88 +268,6 @@ class Digitaleo
     }
 
     /**
-     * Définition de Credential pour le grant type "password"
-     *
-     * @param string $url          URL du serveur d'autorisation
-     * @param string $clientId     Client ID
-     * @param string $clientSecret Client Secret
-     * @param string $username     user name
-     * @param string $password     user password
-     * @param string $token        oauth token (Optional)
-     *
-     * @return Credential credential
-     */
-    public function setOauthPasswordCredentials($url, $clientId, $clientSecret, $username, $password, $token = null)
-    {
-        $credential = new Credential();
-        $credential->grantType = static::GRANT_PASSWORD;
-        $credential->clientId = $clientId;
-        $credential->clientSecret = $clientSecret;
-        $credential->username = $username;
-        $credential->password = $password;
-        $credential->url = $url;
-        $credential->token = $token;
-        $this->setCredential($credential);
-
-        return $credential;
-    }
-
-    /**
-     * Définition de Credential pour le grant type "digitaleo finaluser"
-     *
-     * @param string $url          URL du serveur d'autorisation
-     * @param string $clientId     Client ID
-     * @param string $clientSecret Client Secret
-     * @param string $username     user name
-     * @param string $password     user password
-     * @param string $token        oauth token (Optional)
-     *
-     * @return Credential
-     * @throws Exception
-     */
-    public function setOauthFinalUserDigitaleoCredential($url, $clientId, $clientSecret,
-                                                         $username, $password, $token = null)
-    {
-        $credential = new Credential();
-        $credential->grantType = static::GRANT_FINAL_USER_DIGITALEO;
-        $credential->clientId = $clientId;
-        $credential->clientSecret = $clientSecret;
-        $credential->username = $username;
-        $credential->password = $password;
-        $credential->url = $url;
-        $credential->token = $token;
-        $this->setCredential($credential);
-
-        return $credential;
-    }
-
-    /**
-     * Définition de Credential pour le grant type "facebook user"
-     *
-     * @param string $url           URL du serveur d'autorisation
-     * @param string $clientId      Client ID
-     * @param string $clientSecret  Client Secret
-     * @param string $facebookToken facebook token
-     * @param string $token         oauth token (Optional)
-     *
-     * @return Credential
-     * @throws Exception
-     */
-    public function setOauthFinalUserFacebookCredential($url, $clientId, $clientSecret, $facebookToken, $token = null)
-    {
-        $credential = new Credential();
-        $credential->grantType = static::GRANT_FINAL_USER_FACEBOOK;
-        $credential->clientId = $clientId;
-        $credential->clientSecret = $clientSecret;
-        $credential->facebookToken = $facebookToken;
-        $credential->url = $url;
-        $credential->token = $token;
-        $this->setCredential($credential);
-
-        return $credential;
-    }
-
-    /**
      * Définition de Credential pour le grant type "refresh_token"
      *
      * @param string $url          URL du serveur d'autorisation
@@ -422,14 +337,6 @@ class Digitaleo
         $postFields['grant_type'] = $credential->grantType;
         if ($credential->grantType == static::GRANT_REFRESH) {
             $postFields['refresh_token'] = $credential->refreshToken;
-        } else if ($credential->grantType == static::GRANT_PASSWORD) {
-            $postFields['username'] = $credential->username;
-            $postFields['password'] = $credential->password;
-        } else if ($credential->grantType == static::GRANT_FINAL_USER_DIGITALEO) {
-            $postFields['username'] = $credential->username;
-            $postFields['password'] = $credential->password;
-        } else if ($credential->grantType == static::GRANT_FINAL_USER_FACEBOOK) {
-            $postFields['token'] = $credential->facebookToken;
         }
 
         // Création d'une nouvelle ressource cURL
@@ -935,12 +842,4 @@ class Credential
      * @var string
      */
     public $refreshToken;
-
-    /**
-     * Facebook token
-     *
-     * @var string
-     */
-    public $facebookToken;
-
 }
