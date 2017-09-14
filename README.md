@@ -7,17 +7,15 @@ PHP wrapper to call Digitaleo APIs, two wrappers are available
 
 ## Sample code to use v2/Digitaleo.php
 
-**Init Digitaleo as password credential**
+**Init Digitaleo as client credentials**
 
 ```php
 $httpClient = new \Digitaleo();
 $httpClient->setBaseUrl('<api_base_url>')
-$httpClient->setOauthPasswordCredentials(
+$httpClient->setOauthClientCredentials(
     'https://oauth.messengeo.net/token',
     '<client_id>',
-    '<client_secret>',
-    '<login>',
-    '<password>');
+    '<client_secret>');
 ```
 
 **Read one or several resource**
@@ -29,8 +27,8 @@ $params = [
     'offset' => '<limit>',
     'sort' => '<sort>',
     'total' => '<total>',
-    '<property_name1' => 'property_value1',
-    '<property_name2' => 'property_value2'
+    '<property_name1' => '<property_value1>',
+    '<property_name2' => '<property_value2>'
 ];
 $httpClient->callGet('my_resource_name', $params);
 ```
@@ -39,8 +37,8 @@ $httpClient->callGet('my_resource_name', $params);
 
 ```php
 $body = [
-    '<property_name1' => 'property_value1',
-    '<property_name2' => 'property_value2'
+    '<property_name1>' => '<property_value1>',
+    '<property_name2>' => '<property_value2>'
 ];
 $httpClient->callPost('my_resource_name', $body);
 ```
@@ -52,8 +50,8 @@ $params = [
     'id' => '<id_value>',
 ];
 $dataToUpdate = [
-    '<property_name1' => 'property_value1',
-    '<property_name2' => 'property_value2'
+    '<property_name1>' => '<property_value1>',
+    '<property_name2>' => '<property_value2>'
 ];
 $body = [
     'metaData' => json_encode($dataToUpdate),
